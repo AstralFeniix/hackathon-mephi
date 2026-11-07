@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Тихо</string>
+
+    <!-- Общие элементы -->
+    <string name="theme_light">Светлая тема</string>
+    <string name="theme_dark">Тёмная тема</string>
+    <string name="switch_to_light">Включить светлую тему</string>
+    <string name="switch_to_dark">Включить тёмную тему</string>
+    <string name="back">Назад</string>
+    <string name="more">Ещё</string>
+
+    <!-- Экран «Ваши диалоги» -->
+    <string name="library_title">Ваши диалоги</string>
+    <string name="library_subtitle">Расшифровки разговоров — только на этом устройстве.</string>
+    <string name="all_local">Всё локально</string>
+    <string name="new_dialog">Новый диалог</string>
+    <string name="import_card_subtitle">Загрузите запись встречи, лекции или разговора — мы подпишем реплики и говорящих.</string>
+    <string name="import_record">Импортировать запись</string>
+    <string name="record_with_mic">Записать с микрофона</string>
+    <string name="supported_formats">MP3 и WAV, только на устройстве</string>
+    <string name="recent_transcriptions">Последние диалоги</string>
+    <string name="empty_recordings">Пока нет диалогов. Импортируйте запись или начните разговор.</string>
+    <string name="privacy_library">Без интернета. Только на устройстве.</string>
+
+    <!-- Экран «Запись готова» -->
+    <string name="new_transcription">Новая расшифровка</string>
+    <string name="audio_added">Запись готова</string>
+    <string name="check_before_transcribing">Проверьте звук и запустите расшифровку — мы подпишем говорящих.</string>
+    <string name="language_audio">Язык аудио</string>
+    <string name="model_on_device">Модель на устройстве</string>
+    <string name="model_ready">Установлена и готова к работе</string>
+    <string name="speakers">Говорящие</string>
+    <string name="speakers_auto">Определим автоматически</string>
+    <string name="speakers_auto_chip">Авто</string>
+    <string name="transcribe_dialog">Расшифровать диалог</string>
+    <string name="privacy_ready">Аудио и текст остаются на устройстве</string>
+    <string name="play_audio">Прослушать запись</string>
+    <string name="pause_audio">Поставить на паузу</string>
+    <string name="audio_position">Позиция прослушивания</string>
+    <string name="seek_hint">Проведите по волне, чтобы перемотать</string>
+
+    <!-- Экран записи -->
+    <string name="recording_title">Новая запись</string>
+    <string name="recording_heading">Записать разговор</string>
+    <string name="recording_subtitle">Микрофон включится только после нажатия. Запись останется на устройстве.</string>
+    <string name="start_recording">Начать запись</string>
+    <string name="stop_recording">Остановить и расшифровать</string>
+    <string name="recording_hint">Говорите вблизи микрофона — так голоса будет проще разделить.</string>
+    <string name="recording_in_progress">Идёт запись</string>
+    <string name="recording_ready">Готовы слушать</string>
+    <string name="privacy_recording">Запись остаётся на устройстве</string>
+    <string name="recording_permission_title">Нужен доступ к микрофону</string>
+    <string name="recording_permission_message">Разрешите запись, чтобы приложение могло услышать разговор. Аудио никуда не отправляется.</string>
+    <string name="recording_permission_action">Разрешить микрофон</string>
+    <string name="recording_error">Не удалось начать запись. Попробуйте ещё раз.</string>
+    <string name="discard_recording_title">Прервать запись?</string>
+    <string name="discard_recording_message">Запись не сохранится.</string>
+    <string name="discard">Прервать</string>
+    <string name="keep_recording">Продолжить</string>
+
+    <!-- Экран «Обработка» -->
+    <string name="processing">Обработка</string>
+    <string name="processing_error_title">Не получилось расшифровать</string>
+    <string name="processing_error_hint">Запись осталась на устройстве. Попробуйте ещё раз или вернитесь к списку.</string>
+    <string name="retry">Повторить</string>
+    <string name="back_to_recordings">Вернуться</string>
+    <string name="transcribing">Слушаем диалог</string>
+    <string name="stage_speech_short">Речь</string>
+    <string name="stage_speakers_short">Говорящие</string>
+    <string name="stage_dialog_short">Диалог</string>
+    <string name="listening_placeholder">Слушаем запись — первые реплики появятся здесь.</string>
+    <string name="processed">обработано</string>
+    <string name="processed_time">%1$s обработано</string>
+    <string name="of_time">из %1$s</string>
+    <string name="text_as_processed">Диалог по мере обработки</string>
+    <string name="now">Сейчас</string>
+    <string name="cancel_processing">Отменить обработку</string>
+    <string name="privacy_processing">Без сети, аудио остаётся на устройстве</string>
+
+    <!-- Экран «Расшифровка» -->
+    <string name="transcription">Расшифровка</string>
+    <string name="saved_on_device">Готово, сохранено на устройстве</string>
+    <string name="dialog_title">Диалог</string>
+    <string name="in_dialog">В диалоге</string>
+    <string name="tap_utterance_hint">Нажмите на реплику, чтобы послушать</string>
+    <string name="listen_dialog">Прослушать диалог</string>
+    <string name="listening_dialog">Слушаем диалог</string>
+    <string name="copy">Копировать</string>
+    <string name="copy_json">Копировать JSON</string>
+    <string name="json_file">JSON-файл</string>
+    <string name="json_utf8">JSON, UTF-8</string>
+    <string name="export_json">Экспортировать JSON</string>
+    <string name="save_to_folder">Сохраните файл в выбранную папку</string>
+    <string name="share">Поделиться</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_title">Удалить расшифровку?</string>
+    <string name="delete_message">Расшифровка исчезнет из списка. Аудиофайл останется на устройстве.</string>
+    <string name="cancel">Отмена</string>
+    <string name="play_utterance">Прослушать реплику</string>
+    <string name="json_copied">JSON скопирован</string>
+
+    <!-- Системные сообщения -->
+    <string name="copied">Текст скопирован</string>
+    <string name="export_done">Файл сохранён</string>
+    <string name="export_error">Не удалось сохранить файл</string>
+    <string name="playback_unavailable">Аудио недоступно для этой записи</string>
+</resources>

@@ -1,1 +1,1 @@
-UI/app/src/main/assets/ggml-base.bin filter=lfs diff=lfs merge=lfs -text
+Android/app/src/main/assets/ggml-base.bin filter=lfs diff=lfs merge=lfs -text
