@@ -4,7 +4,7 @@ Android-приложение для хакатона **Nuclear IT Hack**: имп
 
 Под капотом — Rust-ядро **`bridge-core`**: [whisper.cpp](https://github.com/ggerganov/whisper.cpp) через `whisper-rs` для ASR и **sherpa-onnx** (pyannote-сегментация + speaker embeddings) для диаризации. Kotlin вызывает Rust через **UniFFI + JNA**.
 
-> **Реальный прогон:** MP3 01:24 → 31 реплика, 2 говорящих, таймкоды и JSON-экспорт. UI при этом остаётся прежним — это тот же экран «Расшифровка», что и на макетах.
+> **Реальный прогон:** MP3 01:24 → 31 реплика, 2 говорящих, таймкоды и JSON-экспорт. Структура экранов не менялась — обновилось только оформление.
 
 <p align="center">
   <img src="Android/docs/screenshots/theme-bloom-library.png" width="49%" alt="Светлая тема Bloom" />
