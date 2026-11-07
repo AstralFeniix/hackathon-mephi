@@ -44,7 +44,7 @@ Rust-исходники лежат в [`bridge/`](bridge/), а в приложе
 2. `decodeToPcm()` (Symphonia) декодирует WAV/MP3 в **16 кГц mono f32**.
 3. `Engine(ggml-base.bin)` загружается один раз. При первом запуске модель копируется из `assets/` в `filesDir` (148 МБ).
 4. Аудио отдаётся в `Session.pushAudio()` чанками по 5 секунд. На каждом чанке обновляются прогресс и уже готовые реплики; `finish()` забирает хвост.
-5. `SpeakerLabeler.label()` прогоняет полный аудиопоток через sherpa-onnx, получает `SpeakerTurn` и `labelSpeakers()` переносит `speaker_id` на реплики Whisper.
+5. `SpeakerLabeler.label()` прогоняет полный аудиопоток через sherpa-onnx, получает `SpeakerTurn`. `labelSpeakers()` склеивает близкие отрезки одного говорящего, убирает короткие вставки и делит реплики Whisper по смене говорящего, используя таймкоды слов.
 6. UI строит `Utterance` с `speaker_id`, `start_ms`, `end_ms`, `text`; экран результата и JSON используют одну и ту же модель.
 
 ## Модели и размер

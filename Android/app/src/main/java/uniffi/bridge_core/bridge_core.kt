@@ -977,7 +977,7 @@ private fun uniffiCheckApiChecksums(lib: IntegrityCheckingUniffiLib) {
     if (lib.uniffi_bridge_core_checksum_func_decode_to_pcm() != 29908.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_bridge_core_checksum_func_label_speakers() != 30690.toShort()) {
+    if (lib.uniffi_bridge_core_checksum_func_label_speakers() != 20001.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_bridge_core_checksum_func_transcript_to_json() != 55845.toShort()) {
@@ -1882,7 +1882,11 @@ data class Segment (
     var `startMs`: kotlin.ULong, 
     var `endMs`: kotlin.ULong, 
     var `speaker`: kotlin.UInt, 
-    var `text`: kotlin.String
+    var `text`: kotlin.String, 
+    /**
+     * Word timings, used to split a segment where the speaker changes. Empty if unknown.
+     */
+    var `words`: List<Word>
 ) {
     
     companion object
@@ -1898,6 +1902,7 @@ public object FfiConverterTypeSegment: FfiConverterRustBuffer<Segment> {
             FfiConverterULong.read(buf),
             FfiConverterUInt.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterSequenceTypeWord.read(buf),
         )
     }
 
@@ -1905,7 +1910,8 @@ public object FfiConverterTypeSegment: FfiConverterRustBuffer<Segment> {
             FfiConverterULong.allocationSize(value.`startMs`) +
             FfiConverterULong.allocationSize(value.`endMs`) +
             FfiConverterUInt.allocationSize(value.`speaker`) +
-            FfiConverterString.allocationSize(value.`text`)
+            FfiConverterString.allocationSize(value.`text`) +
+            FfiConverterSequenceTypeWord.allocationSize(value.`words`)
     )
 
     override fun write(value: Segment, buf: ByteBuffer) {
@@ -1913,6 +1919,7 @@ public object FfiConverterTypeSegment: FfiConverterRustBuffer<Segment> {
             FfiConverterULong.write(value.`endMs`, buf)
             FfiConverterUInt.write(value.`speaker`, buf)
             FfiConverterString.write(value.`text`, buf)
+            FfiConverterSequenceTypeWord.write(value.`words`, buf)
     }
 }
 
@@ -1980,6 +1987,42 @@ public object FfiConverterTypeTranscript: FfiConverterRustBuffer<Transcript> {
 
     override fun write(value: Transcript, buf: ByteBuffer) {
             FfiConverterSequenceTypeSegment.write(value.`segments`, buf)
+    }
+}
+
+
+
+data class Word (
+    var `startMs`: kotlin.ULong, 
+    var `endMs`: kotlin.ULong, 
+    var `text`: kotlin.String
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeWord: FfiConverterRustBuffer<Word> {
+    override fun read(buf: ByteBuffer): Word {
+        return Word(
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: Word) = (
+            FfiConverterULong.allocationSize(value.`startMs`) +
+            FfiConverterULong.allocationSize(value.`endMs`) +
+            FfiConverterString.allocationSize(value.`text`)
+    )
+
+    override fun write(value: Word, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`startMs`, buf)
+            FfiConverterULong.write(value.`endMs`, buf)
+            FfiConverterString.write(value.`text`, buf)
     }
 }
 
@@ -2154,6 +2197,34 @@ public object FfiConverterSequenceTypeSpeakerTurn: FfiConverterRustBuffer<List<S
         }
     }
 }
+
+
+
+
+/**
+ * @suppress
+ */
+public object FfiConverterSequenceTypeWord: FfiConverterRustBuffer<List<Word>> {
+    override fun read(buf: ByteBuffer): List<Word> {
+        val len = buf.getInt()
+        return List<Word>(len) {
+            FfiConverterTypeWord.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<Word>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeWord.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<Word>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeWord.write(it, buf)
+        }
+    }
+}
         /**
          * Decodes an mp3 or wav file to a raw file of 16 kHz mono little-endian f32 samples.
          * Returns the number of samples written.
@@ -2169,8 +2240,8 @@ public object FfiConverterSequenceTypeSpeakerTurn: FfiConverterRustBuffer<List<S
     
 
         /**
-         * Gives each segment the speaker who talks for most of its time.
-         * Segments that no turn covers keep their current label.
+         * Labels each segment with the speaker who talks for most of it, and splits segments where
+         * the speaker changes. Segments that no turn covers keep their current label.
          */ fun `labelSpeakers`(`transcript`: Transcript, `turns`: List<SpeakerTurn>): Transcript {
             return FfiConverterTypeTranscript.lift(
     uniffiRustCall() { _status ->

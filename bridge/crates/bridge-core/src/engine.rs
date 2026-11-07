@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
-use crate::asr::{self, AsrBackend, Quality};
+use crate::asr::{self, AsrBackend, Quality, RawSegment};
 use crate::check_sample_rate;
-use crate::diarization::{dominant_speaker, Diarizer, SingleSpeaker};
+use crate::diarization::{dominant_speaker, Diarizer, SingleSpeaker, SpeakerTurn};
 use crate::transcript::Transcript;
 use crate::BridgeError;
 
@@ -11,6 +11,15 @@ pub struct Segment {
     pub start_ms: u64,
     pub end_ms: u64,
     pub speaker: u32,
+    pub text: String,
+    /// Word timings, used to split a segment where the speaker changes. Empty if unknown.
+    pub words: Vec<Word>,
+}
+
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct Word {
+    pub start_ms: u64,
+    pub end_ms: u64,
     pub text: String,
 }
 
@@ -38,6 +47,24 @@ impl Engine {
     }
 }
 
+fn to_segment(raw: RawSegment, turns: &[SpeakerTurn], offset_ms: u64) -> Segment {
+    Segment {
+        speaker: dominant_speaker(turns, raw.start_ms, raw.end_ms).unwrap_or(0),
+        start_ms: offset_ms + raw.start_ms,
+        end_ms: offset_ms + raw.end_ms,
+        text: raw.text,
+        words: raw
+            .words
+            .into_iter()
+            .map(|w| Word {
+                start_ms: offset_ms + w.start_ms,
+                end_ms: offset_ms + w.end_ms,
+                text: w.text,
+            })
+            .collect(),
+    }
+}
+
 impl Engine {
     /// Transcribes one chunk of 16 kHz audio. Timestamps are shifted by `offset_ms`
     /// so they stay on the timeline of the whole recording.
@@ -53,12 +80,7 @@ impl Engine {
         Ok(raw
             .into_iter()
             .filter(|s| !s.text.is_empty())
-            .map(|s| Segment {
-                speaker: dominant_speaker(&turns, s.start_ms, s.end_ms).unwrap_or(0),
-                start_ms: offset_ms + s.start_ms,
-                end_ms: offset_ms + s.end_ms,
-                text: s.text,
-            })
+            .map(|s| to_segment(s, &turns, offset_ms))
             .collect())
     }
 }

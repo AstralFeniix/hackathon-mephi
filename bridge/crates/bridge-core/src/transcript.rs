@@ -50,6 +50,7 @@ mod tests {
                 end_ms: 4380,
                 speaker: 0,
                 text: "Добрый день!".into(),
+                words: vec![],
             }],
         };
         let json: serde_json::Value = serde_json::from_str(&transcript_to_json(transcript)).unwrap();

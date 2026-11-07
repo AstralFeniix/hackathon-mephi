@@ -201,7 +201,10 @@ fn main() {
 
     if cfg!(feature = "vulkan") {
         config.define("GGML_VULKAN", "ON");
-        if cfg!(windows) {
+        if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
+            // The NDK ships libvulkan.so; the Windows/macOS branches below are host-based.
+            println!("cargo:rustc-link-lib=vulkan");
+        } else if cfg!(windows) {
             println!("cargo:rerun-if-env-changed=VULKAN_SDK");
             println!("cargo:rustc-link-lib=vulkan-1");
             let vulkan_path = match env::var("VULKAN_SDK") {
