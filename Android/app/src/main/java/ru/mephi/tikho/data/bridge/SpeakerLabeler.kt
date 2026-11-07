@@ -31,7 +31,9 @@ class SpeakerLabeler(context: Context) {
                     model = "diarization/embedding.onnx",
                 ),
                 // -1: число говорящих оценивается по порогу, а не задаётся заранее.
-                clustering = FastClusteringConfig(numClusters = -1, threshold = 0.5f),
+                clustering = FastClusteringConfig(numClusters = -1, threshold = CLUSTER_THRESHOLD),
+                minDurationOn = MIN_DURATION_ON_S,
+                minDurationOff = MIN_DURATION_OFF_S,
             ),
         )
     }
@@ -45,4 +47,14 @@ class SpeakerLabeler(context: Context) {
                 speaker = segment.speaker.toUInt(),
             )
         }
+
+    private companion object {
+        // Расстояние между кластерами, при котором они считаются одним говорящим.
+        // Меньше значение — больше говорящих: 0.4 давало новые id уже знакомым голосам.
+        const val CLUSTER_THRESHOLD = 0.5f
+
+        // Короткая речь (сек.) отбрасывается, короткая пауза (сек.) внутри речи заполняется.
+        const val MIN_DURATION_ON_S = 0.3f
+        const val MIN_DURATION_OFF_S = 0.5f
+    }
 }

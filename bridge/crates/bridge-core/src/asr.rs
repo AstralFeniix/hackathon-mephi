@@ -5,6 +5,15 @@ pub struct RawSegment {
     pub start_ms: u64,
     pub end_ms: u64,
     pub text: String,
+    /// Word timings. Empty when the backend did not produce token timestamps.
+    pub words: Vec<RawWord>,
+}
+
+#[derive(Debug, Clone)]
+pub struct RawWord {
+    pub start_ms: u64,
+    pub end_ms: u64,
+    pub text: String,
 }
 
 /// Fast suits partial results that are re-run every second; Accurate suits final segments.
@@ -50,11 +59,21 @@ pub struct WhisperBackend {
 #[cfg(feature = "whisper")]
 impl WhisperBackend {
     pub fn new(model_path: &str) -> Result<Self, BridgeError> {
-        let ctx = whisper_rs::WhisperContext::new_with_params(
+        // With the `vulkan` feature, the default parameters try the GPU first. Some GPUs
+        // cannot load the model, so retry on CPU instead of failing the whole session.
+        let ctx = match whisper_rs::WhisperContext::new_with_params(
             model_path,
             whisper_rs::WhisperContextParameters::default(),
-        )
-        .map_err(|e| BridgeError::ModelLoad(e.to_string()))?;
+        ) {
+            Ok(ctx) => ctx,
+            Err(_) if cfg!(feature = "vulkan") => {
+                let mut cpu = whisper_rs::WhisperContextParameters::default();
+                cpu.use_gpu(false);
+                whisper_rs::WhisperContext::new_with_params(model_path, cpu)
+                    .map_err(|e| BridgeError::ModelLoad(e.to_string()))?
+            }
+            Err(e) => return Err(BridgeError::ModelLoad(e.to_string())),
+        };
         let state = ctx
             .create_state()
             .map_err(|e| BridgeError::ModelLoad(e.to_string()))?;
@@ -104,6 +123,38 @@ mod bench {
     }
 }
 
+/// Groups the tokens of one whisper segment into words. A token that starts with a space
+/// begins a new word; other tokens (such as the tail of a Cyrillic letter) extend it.
+#[cfg(feature = "whisper")]
+fn collect_words(
+    state: &whisper_rs::WhisperState,
+    segment: i32,
+) -> Result<Vec<RawWord>, whisper_rs::WhisperError> {
+    let mut words: Vec<RawWord> = Vec::new();
+    for j in 0..state.full_n_tokens(segment)? {
+        let text = state.full_get_token_text_lossy(segment, j)?;
+        // Skip special tokens such as [_BEG_] and <|en|>, and empty pieces.
+        if text.trim().is_empty() || text.starts_with("[_") || text.starts_with("<|") {
+            continue;
+        }
+        let data = state.full_get_token_data(segment, j)?;
+        let start_ms = data.t0.max(0) as u64 * 10;
+        let end_ms = data.t1.max(0) as u64 * 10;
+        match words.last_mut() {
+            Some(last) if !text.starts_with(' ') => {
+                last.text.push_str(&text);
+                last.end_ms = end_ms;
+            }
+            _ => words.push(RawWord {
+                start_ms,
+                end_ms,
+                text: text.trim().to_string(),
+            }),
+        }
+    }
+    Ok(words)
+}
+
 #[cfg(feature = "whisper")]
 impl AsrBackend for WhisperBackend {
     fn transcribe(&self, samples: &[f32], quality: Quality) -> Result<Vec<RawSegment>, BridgeError> {
@@ -122,6 +173,9 @@ impl AsrBackend for WhisperBackend {
             Quality::Accurate => (SamplingStrategy::BeamSearch { beam_size: 5, patience: -1.0 }, 0),
         };
 
+        // Word timings are only needed for final segments; partials skip them to stay fast.
+        let want_words = quality == Quality::Accurate;
+
         let mut params = FullParams::new(strategy);
         params.set_language(Some("auto"));
         params.set_print_progress(false);
@@ -130,6 +184,7 @@ impl AsrBackend for WhisperBackend {
         params.set_n_threads(thread_count());
         params.set_audio_ctx(audio_ctx);
         params.set_temperature_inc(0.0);
+        params.set_token_timestamps(want_words);
 
         state.full(params, samples).map_err(err)?;
 
@@ -140,10 +195,16 @@ impl AsrBackend for WhisperBackend {
             // whisper timestamps are in centiseconds (10 ms units)
             let t0 = state.full_get_segment_t0(i).map_err(err)?;
             let t1 = state.full_get_segment_t1(i).map_err(err)?;
+            let words = if want_words {
+                collect_words(&state, i).map_err(err)?
+            } else {
+                Vec::new()
+            };
             out.push(RawSegment {
                 start_ms: t0.max(0) as u64 * 10,
                 end_ms: t1.max(0) as u64 * 10,
                 text: text.trim().to_string(),
+                words,
             });
         }
         Ok(out)

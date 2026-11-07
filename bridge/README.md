@@ -25,11 +25,11 @@ The Gradle app lives in [`../Android`](../Android). This directory no longer con
 ## Design notes
 
 - **Speech-to-text:** `faster-whisper` is a Python wrapper around CTranslate2 and doesn't run on Android. The equivalent is **whisper.cpp**, which is wrapped by the `whisper-rs` crate (feature `whisper`). Models are GGML files such as `ggml-base.bin` or `ggml-small.bin`.
-- **Diarization:** `pyannote` is Python/PyTorch. The Rust side has a `Diarizer` trait, and the current implementation is a placeholder that labels everything as speaker 1. See the roadmap below.
+- **Diarization:** `pyannote` is Python/PyTorch, so the segmentation and speaker embeddings run on Android through sherpa-onnx (`SpeakerLabeler`). The Rust side has a `Diarizer` trait; `SingleSpeaker` is its placeholder, used for live partials. See the roadmap below.
 - **Interface:** `Engine` (model), `Session` (live or file transcription with timestamps), and `transcriptToJson()`. Kotlin gets generated bindings for all three.
 - **Live:** `Session.pushAudio()` buffers audio and cuts it at pauses (400 ms of silence, after at least 3 s; hard cut at 15 s). Each piece is transcribed once, and the finished segments are returned right away.
 - **Files:** `Session.pushAudioFile(path)` decodes mp3 and wav with Symphonia, resamples to 16 kHz mono, and runs the same pipeline as live audio.
-- **Speakers:** diarization is still a placeholder, so every segment is `speaker_1` for now. The `Diarizer` trait is where the real pyannote-style model plugs in.
+- **Speakers:** `label_speakers()` joins close turns of the same speaker, folds blips shorter than 300 ms into the surrounding turn, and splits each Whisper segment where the speaker changes, using word timings from whisper.cpp. Segments without word timings get the single dominant speaker.
 
 ## Output format
 

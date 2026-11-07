@@ -133,11 +133,13 @@ fn merge(segments: Vec<Segment>) -> Option<Segment> {
         .map(|s| s.text.as_str())
         .collect::<Vec<_>>()
         .join(" ");
+    let words = segments.iter().flat_map(|s| s.words.clone()).collect();
     Some(Segment {
         start_ms: first.start_ms,
         end_ms: last.end_ms,
         speaker: first.speaker,
         text,
+        words,
     })
 }
 
