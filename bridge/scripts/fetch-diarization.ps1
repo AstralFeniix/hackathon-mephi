@@ -4,8 +4,10 @@ $ErrorActionPreference = "Stop"
 # Versions: https://github.com/k2-fsa/sherpa-onnx/releases
 
 $Root = Split-Path -Parent $PSScriptRoot
-$Libs = Join-Path $Root "android\app\libs"
-$Assets = Join-Path $Root "android\app\src\main\assets\diarization"
+$RepoRoot = Split-Path -Parent $Root
+$Android = Join-Path $RepoRoot "Android"
+$Libs = Join-Path $Android "app\libs"
+$Assets = Join-Path $Android "app\src\main\assets\diarization"
 $Release = "https://github.com/k2-fsa/sherpa-onnx/releases/download"
 
 New-Item -ItemType Directory -Force -Path $Libs, $Assets | Out-Null

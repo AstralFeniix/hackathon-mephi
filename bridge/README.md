@@ -15,12 +15,12 @@ bridge/
 │       ├── asr.rs                # AsrBackend trait, WhisperBackend (feature `whisper`)
 │       ├── diarization.rs        # Diarizer trait, SingleSpeaker placeholder
 │       └── error.rs              # BridgeError
-├── scripts/build-android.ps1     # host build -> Kotlin bindings -> cargo-ndk -> .so files
-└── android/                      # Gradle project (Kotlin, Compose)
-    └── app/src/main/java/com/example/bridge/
-        ├── MainActivity.kt       # UI: record / stop / show transcript
-        └── AudioCapture.kt       # AudioRecord -> 16 kHz f32 samples
+└── scripts/
+    ├── build-android.ps1         # host build -> Kotlin bindings -> cargo-ndk -> .so files in ../Android
+    └── fetch-diarization.ps1     # sherpa-onnx AAR + ONNX models -> ../Android
 ```
+
+The Gradle app lives in [`../Android`](../Android). This directory no longer contains an Android instance.
 
 ## Design notes
 
@@ -48,29 +48,6 @@ bridge/
 }
 ```
 
-## Using Bridge from other Android apps
-
-Bridge exposes two intents. The result comes back as JSON.
-
-**1. Transcription intent.** Start `com.example.bridge.action.TRANSCRIBE` for a result, with the audio as the data URI:
-
-```kotlin
-val intent = Intent("com.example.bridge.action.TRANSCRIBE")
-    .setDataAndType(audioUri, "audio/*")               // content:// URI of an mp3 or wav
-    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-startActivityForResult(intent, REQ_TRANSCRIBE)
-
-override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    if (requestCode == REQ_TRANSCRIBE && resultCode == RESULT_OK) {
-        val json = data?.getStringExtra("com.example.bridge.extra.TRANSCRIPT_JSON")
-    }
-}
-```
-
-**2. Share.** Any app that shares audio (`ACTION_SEND`, `audio/*`) can send it to Bridge. The transcript is shown in the app.
-
-Note: the activity is exported, so any installed app can call it. Add a signature-level permission before shipping.
-
 ## Prerequisites (Windows)
 
 1. **Rust** with Android targets:
@@ -85,18 +62,16 @@ Note: the activity is exported, so any installed app can call it. Add a signatur
 ## Build and run
 
 ```powershell
-# 1. Build the Rust core for Android and regenerate Kotlin bindings
+# 1. Download the sherpa-onnx AAR and diarization models into ../Android (once)
+.\scripts\fetch-diarization.ps1
+
+# 2. Build the Rust core for Android and regenerate Kotlin bindings in ../Android
 .\scripts\build-android.ps1
 
-# 2. Put a Whisper model on the device (the app reads filesDir/ggml-base.bin)
-#    Download e.g. ggml-base.bin from https://huggingface.co/ggerganov/whisper.cpp
-adb push ggml-base.bin /data/local/tmp/
-adb shell run-as com.example.bridge cp /data/local/tmp/ggml-base.bin files/
-
-# 3. Open android/ in Android Studio and run on a device (arm64) or emulator (x86_64)
+# 3. Open ../Android in Android Studio and run on a device (arm64) or emulator (x86_64)
 ```
 
-The Gradle wrapper isn't checked in. Open the `android/` folder in Android Studio, which syncs it automatically, or run `gradle wrapper` inside `android/` if you have Gradle installed.
+The Gradle wrapper is checked in under `../Android`; the Whisper model is bundled as `../Android/app/src/main/assets/ggml-base.bin`.
 
 For a quick Rust-only check without the Whisper toolchain, run `cargo check --workspace`. This builds the default feature set, where `Engine::transcribe` returns an error saying the `whisper` feature is missing.
 
