@@ -169,21 +169,14 @@ Rust-исходники лежат в [`bridge/`](bridge/), а в приложе
 .\gradlew.bat lintDebug
 ```
 
-Если менялось Rust-ядро, сначала пересоберите его в `bridge/`:
+Если менялось Rust-ядро, пересоберите его из `bridge/`. Скрипт сразу кладёт `.so` и UniFFI-биндинги в `Android/`:
 
 ```powershell
 cd bridge
 .\scripts\build-android.ps1
 ```
 
-Затем синхронизируйте артефакты в `Android/`:
-
-```powershell
-cd ..\Android
-.\scripts\sync-bridge.ps1
-```
-
-Скрипт копирует `.so`, модели, UniFFI-биндинги, `sherpa-onnx.aar` и скачивает `jna-5.17.0.aar`, если его нет.
+Модели и `sherpa-onnx.aar` скачиваются один раз скриптом `bridge/scripts/fetch-diarization.ps1` в `Android/app/src/main/`.
 
 ## Проверено
 
@@ -224,11 +217,9 @@ hackathon-mephi/
 │   │       ├── data/TranscriptionEngine.kt
 │   │       ├── ui/theme/...      # Bloom / Lumen
 │   │       └── ui/screens/...
-│   ├── scripts/sync-bridge.ps1
 │   └── docs/screenshots/
-├── bridge/                        # Rust workspace + Android-прототип
+├── bridge/                        # Rust workspace
 │   ├── crates/
-│   ├── android/
 │   └── scripts/
 └── README.md
 ```

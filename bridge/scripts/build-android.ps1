@@ -6,8 +6,10 @@ param(
 $ErrorActionPreference = "Stop"
 
 $Root = Split-Path -Parent $PSScriptRoot
-$JniLibs = Join-Path $Root "android\app\src\main\jniLibs"
-$KotlinOut = Join-Path $Root "android\app\src\main\java"
+$RepoRoot = Split-Path -Parent $Root
+$Android = Join-Path $RepoRoot "Android"
+$JniLibs = Join-Path $Android "app\src\main\jniLibs"
+$KotlinOut = Join-Path $Android "app\src\main\java"
 
 $Sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { Join-Path $env:LOCALAPPDATA "Android\Sdk" }
 $Ndk = if ($env:ANDROID_NDK_HOME) {
