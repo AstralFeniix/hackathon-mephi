@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.mephi.tikho.data.DemoData
 import ru.mephi.tikho.data.TranscriptionEngine
 import ru.mephi.tikho.data.bridge.RustTranscriptionEngine
 import ru.mephi.tikho.data.todayLabel
@@ -35,9 +34,7 @@ class TikhoViewModel(application: Application) : AndroidViewModel(application) {
     var screen by mutableStateOf<Screen>(Screen.Library)
         private set
 
-    val recordings = mutableStateListOf<Recording>().apply {
-        addAll(DemoData.recentRecordings)
-    }
+    val recordings = mutableStateListOf<Recording>()
 
     var progress by mutableFloatStateOf(0f)
         private set

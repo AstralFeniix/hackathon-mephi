@@ -26,7 +26,7 @@ class FormattersTest {
     }
 
     @Test
-    fun remainingLabelMatchesTheMockCopy() {
+    fun remainingLabelMatchesExpectedCopy() {
         assertEquals("Осталось около минуты", remainingLabel(0.64f, 384_000))
         assertEquals("Осталось меньше минуты", remainingLabel(0.95f, 384_000))
     }
