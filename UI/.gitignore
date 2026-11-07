@@ -1,0 +1,22 @@
+## Gradle
+.gradle/
+.kotlin/
+build/
+/captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+*.log
+
+## Android Studio / IntelliJ
+*.iml
+.idea/
+.DS_Store
+
+## Signing
+*.jks
+*.keystore
+
+## Local test artifacts
+/design/*.wav
+/screenshots/

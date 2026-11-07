@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!--
+        UniFFI генерирует безопасный runtime-fallback: Cleaner используется только
+        если класс существует (Android 13+), иначе выбирается JNA-cleaner.
+        Lint не видит эту проверку и считает minSdk 26 ошибкой.
+    -->
+    <issue id="NewApi">
+        <ignore path="src/main/java/uniffi/bridge_core/bridge_core.kt" />
+    </issue>
+</lint>

@@ -1,0 +1,178 @@
+{
+  "transcript": [
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 0,
+      "end_ms": 4000,
+      "text": "File 1A - Pronunciation B"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 4435,
+      "end_ms": 9915,
+      "text": "1. Train. A."
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 9360,
+      "end_ms": 15360,
+      "text": "A. K. E."
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 14525,
+      "end_ms": 16525,
+      "text": "Two."
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 16525,
+      "end_ms": 18525,
+      "text": "Train."
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 18960,
+      "end_ms": 24460,
+      "text": "A, H, P."
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 23905,
+      "end_ms": 25905,
+      "text": "J"
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 25905,
+      "end_ms": 27905,
+      "text": "3"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 27905,
+      "end_ms": 29905,
+      "text": "3"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 29670,
+      "end_ms": 35330,
+      "text": "e, t, v"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 35510,
+      "end_ms": 36470,
+      "text": "uh"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 36470,
+      "end_ms": 39190,
+      "text": "four"
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 39420,
+      "end_ms": 44220,
+      "text": "tri.e.m"
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 44390,
+      "end_ms": 46390,
+      "text": "C"
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 46390,
+      "end_ms": 48390,
+      "text": "D"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 48510,
+      "end_ms": 54190,
+      "text": "5. Egg. A."
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 54100,
+      "end_ms": 56100,
+      "text": "n"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 56100,
+      "end_ms": 58100,
+      "text": "b"
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 58100,
+      "end_ms": 60100,
+      "text": "f"
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 59425,
+      "end_ms": 61425,
+      "text": "6."
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 61425,
+      "end_ms": 62425,
+      "text": "8."
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 62425,
+      "end_ms": 63425,
+      "text": "8."
+    },
+    {
+      "speaker_id": "speaker_2",
+      "start_ms": 64305,
+      "end_ms": 68705,
+      "text": "x, s, k."
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 69535,
+      "end_ms": 71535,
+      "text": "7"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 71535,
+      "end_ms": 73535,
+      "text": "Boot"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 74040,
+      "end_ms": 76040,
+      "text": "ooo"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 76040,
+      "end_ms": 78040,
+      "text": "q"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 78040,
+      "end_ms": 80040,
+      "text": "i"
+    },
+    {
+      "speaker_id": "speaker_1",
+      "start_ms": 79505,
+      "end_ms": 82505,
+      "text": "\"you\""
+    }
+  ]
+}

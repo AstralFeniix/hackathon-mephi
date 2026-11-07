@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = ["crates/bridge-core"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+# Local copy of whisper-rs-sys with a fix for Windows -> Android cross-compilation
+# (the upstream build script applied MSVC-only flags based on the host OS).
+[patch.crates-io]
+whisper-rs-sys = { path = "vendor/whisper-rs-sys" }
