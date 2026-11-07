@@ -143,6 +143,17 @@ Rust-исходники лежат в [`bridge/`](bridge/), а в приложе
 
 Нужны Android Studio/JDK 17+ и Android SDK 36. Rust/NDK для обычной сборки **не нужны** — нативные библиотеки уже в проекте.
 
+> **Git LFS:** файл `UI/app/src/main/assets/ggml-base.bin` (141 МБ) хранится в Git LFS. Перед клонированием установите Git LFS, а после клонирования выполните `git lfs pull`:
+>
+> ```powershell
+> git lfs install
+> git clone https://github.com/AstralFeniix/hackathon-mephi.git
+> cd hackathon-mephi
+> git lfs pull
+> ```
+>
+> Без LFS вместо модели будет текстовый pointer-файл, и приложение не сможет загрузить Whisper.
+
 ```powershell
 # из папки UI
 .\gradlew.bat assembleDebug
