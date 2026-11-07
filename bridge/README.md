@@ -8,32 +8,32 @@ Rust-ядро для локальной расшифровки диалогов:
 ```
 bridge/
 ├── Cargo.toml                    # Rust workspace
-├── crates/bridge-core/           # Rust: ASR + diarization + merge, exported via UniFFI
+├── crates/bridge-core/           # Rust: ASR + диаризация + слияние, экспортируется через UniFFI
 │   └── src/
-│       ├── lib.rs                # uniffi scaffolding + exports
-│       ├── engine.rs             # Engine object: transcribe() = ASR + diarization + merge
-│       ├── asr.rs                # AsrBackend trait, WhisperBackend (feature `whisper`)
-│       ├── diarization.rs        # Diarizer trait, SingleSpeaker placeholder
+│       ├── lib.rs                # uniffi scaffolding + экспорты
+│       ├── engine.rs             # объект Engine: transcribe() = ASR + диаризация + слияние
+│       ├── asr.rs                # трейт AsrBackend, WhisperBackend (фича `whisper`)
+│       ├── diarization.rs        # трейт Diarizer, заглушка SingleSpeaker
 │       └── error.rs              # BridgeError
 └── scripts/
-    ├── build-android.ps1         # host build -> Kotlin bindings -> cargo-ndk -> .so files in ../Android
-    └── fetch-diarization.ps1     # sherpa-onnx AAR + ONNX models -> ../Android
+    ├── build-android.ps1         # сборка на хосте -> Kotlin-биндинги -> cargo-ndk -> .so в ../Android
+    └── fetch-diarization.ps1     # sherpa-onnx AAR + ONNX-модели -> ../Android
 ```
 
-The Gradle app lives in [`../Android`](../Android). This directory no longer contains an Android instance.
+Gradle-приложение находится в [`../Android`](../Android). Android-проекта в этом каталоге больше нет.
 
-## Design notes
+## Заметки по архитектуре
 
-- **Speech-to-text:** `faster-whisper` is a Python wrapper around CTranslate2 and doesn't run on Android. The equivalent is **whisper.cpp**, which is wrapped by the `whisper-rs` crate (feature `whisper`). Models are GGML files such as `ggml-base.bin` or `ggml-small.bin`.
-- **Diarization:** `pyannote` is Python/PyTorch, so the segmentation and speaker embeddings run on Android through sherpa-onnx (`SpeakerLabeler`). The Rust side has a `Diarizer` trait; `SingleSpeaker` is its placeholder, used for live partials. See the roadmap below.
-- **Interface:** `Engine` (model), `Session` (live or file transcription with timestamps), and `transcriptToJson()`. Kotlin gets generated bindings for all three.
-- **Live:** `Session.pushAudio()` buffers audio and cuts it at pauses (400 ms of silence, after at least 3 s; hard cut at 15 s). Each piece is transcribed once, and the finished segments are returned right away.
-- **Files:** `Session.pushAudioFile(path)` decodes mp3 and wav with Symphonia, resamples to 16 kHz mono, and runs the same pipeline as live audio.
-- **Speakers:** `label_speakers()` joins close turns of the same speaker, folds blips shorter than 300 ms into the surrounding turn, and splits each Whisper segment where the speaker changes, using word timings from whisper.cpp. Segments without word timings get the single dominant speaker.
+- **Распознавание речи:** `faster-whisper` — это Python-обёртка над CTranslate2, и на Android она не работает. Его аналог — **whisper.cpp**, обёрнутый крейтом `whisper-rs` (фича `whisper`). Модели — GGML-файлы, например `ggml-base.bin` или `ggml-small.bin`.
+- **Диаризация:** `pyannote` написан на Python/PyTorch, поэтому сегментация и speaker embeddings выполняются на Android через sherpa-onnx (`SpeakerLabeler`). На стороне Rust есть трейт `Diarizer`; `SingleSpeaker` — его заглушка, используемая для live-фрагментов. Подробности — в дорожной карте ниже.
+- **Интерфейс:** `Engine` (модель), `Session` (live- или файловая расшифровка с таймкодами) и `transcriptToJson()`. Kotlin получает сгенерированные биндинги для всех трёх.
+- **Live:** `Session.pushAudio()` буферизует аудио и нарезает его по паузам (400 мс тишины, но не раньше чем через 3 с; жёсткая нарезка на 15 с). Каждый фрагмент распознаётся один раз, готовые сегменты возвращаются сразу.
+- **Файлы:** `Session.pushAudioFile(path)` декодирует mp3 и wav через Symphonia, ресемплирует в 16 кГц mono и запускает тот же конвейер, что и для live-аудио.
+- **Говорящие:** `label_speakers()` объединяет близкие реплики одного говорящего, вливает вставки короче 300 мс в окружающую реплику и разбивает каждый сегмент Whisper в местах смены говорящего, используя таймкоды слов из whisper.cpp. Сегменты без таймкодов слов получают одного доминирующего говорящего.
 
-## Output format
+## Формат вывода
 
-`Session.finish()` returns a transcript, and `transcriptToJson()` serializes it as:
+`Session.finish()` возвращает транскрипт, а `transcriptToJson()` сериализует его так:
 
 ```json
 {
@@ -48,38 +48,38 @@ The Gradle app lives in [`../Android`](../Android). This directory no longer con
 }
 ```
 
-## Prerequisites (Windows)
+## Требования (Windows)
 
-1. **Rust** with Android targets:
+1. **Rust** с Android-таргетами:
    ```powershell
    rustup target add aarch64-linux-android x86_64-linux-android
    cargo install cargo-ndk
    ```
-2. **Android NDK**, installed through Android Studio's SDK Manager. Set `ANDROID_NDK_HOME` to its path, for example `C:\Users\Astral\AppData\Local\Android\Sdk\ndk\<version>`.
-3. **cmake and clang**, needed to build whisper.cpp. Both are included with Visual Studio Build Tools.
-4. **JDK 17** for Gradle. The machine's default `java` is 1.8, so set `JAVA_HOME` to a JDK 17 install or let Android Studio use its bundled JBR.
+2. **Android NDK**, установленный через SDK Manager в Android Studio. Укажите `ANDROID_NDK_HOME` на его путь, например `C:\Users\Astral\AppData\Local\Android\Sdk\ndk\<version>`.
+3. **cmake и clang**, необходимые для сборки whisper.cpp. Оба входят в Visual Studio Build Tools.
+4. **JDK 17** для Gradle. Системный `java` на машине — 1.8, поэтому задайте `JAVA_HOME` на установленный JDK 17 или дайте Android Studio использовать встроенный JBR.
 
-## Build and run
+## Сборка и запуск
 
 ```powershell
-# 1. Download the sherpa-onnx AAR and diarization models into ../Android (once)
+# 1. Скачать AAR sherpa-onnx и модели диаризации в ../Android (один раз)
 .\scripts\fetch-diarization.ps1
 
-# 2. Build the Rust core for Android and regenerate Kotlin bindings in ../Android
+# 2. Собрать Rust-ядро для Android и перегенерировать Kotlin-биндинги в ../Android
 .\scripts\build-android.ps1
 
-# 3. Open ../Android in Android Studio and run on a device (arm64) or emulator (x86_64)
+# 3. Открыть ../Android в Android Studio и запустить на устройстве (arm64) или эмуляторе (x86_64)
 ```
 
-The Gradle wrapper is checked in under `../Android`; the Whisper model is bundled as `../Android/app/src/main/assets/ggml-base.bin`.
+Gradle wrapper лежит в `../Android`; модель Whisper поставляется как `../Android/app/src/main/assets/ggml-base.bin`.
 
-For a quick Rust-only check without the Whisper toolchain, run `cargo check --workspace`. This builds the default feature set, where `Engine::transcribe` returns an error saying the `whisper` feature is missing.
+Для быстрой проверки только Rust без toolchain для Whisper выполните `cargo check --workspace`. Она собирает набор фич по умолчанию, в котором `Engine::transcribe` возвращает ошибку о том, что фича `whisper` отсутствует.
 
-## Roadmap
+## Дорожная карта
 
-- [ ] Verify the whisper-rs build on Android (the `whisper` feature needs the NDK toolchain).
-- [ ] Diarization: port the pyannote pipeline to ONNX Runtime (`ort` crate). Use `pyannote/segmentation-3.0` for voice activity and speaker-change segmentation, and a speaker-embedding model (WeSpeaker or 3D-Speaker) for clustering (agglomerative or spectral). Implement it as a `Diarizer` impl in `diarization.rs`.
-  - Alternative: [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) ships Android builds with Whisper-family ASR and offline speaker diarization. It could replace the whole Rust core.
-- [ ] Long recordings: chunk audio with VAD and run ASR in the background. Right now `transcribe` is one blocking call.
-- [ ] Model download and management in the app instead of manual `adb push`.
-- [ ] Optional: async UniFFI methods so Kotlin can use suspend functions directly.
+- [ ] Проверить сборку whisper-rs на Android (для фичи `whisper` нужен NDK toolchain).
+- [ ] Диаризация: перенести конвейер pyannote на ONNX Runtime (крейт `ort`). Использовать `pyannote/segmentation-3.0` для определения голосовой активности и сегментации смены говорящего, а модель speaker embeddings (WeSpeaker или 3D-Speaker) — для кластеризации (агломеративной или спектральной). Реализовать как имплементацию `Diarizer` в `diarization.rs`.
+  - Альтернатива: [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) поставляет Android-сборки с ASR семейства Whisper и офлайн-диаризацией говорящих. Он может заменить всё Rust-ядро.
+- [ ] Долгие записи: нарезать аудио через VAD и запускать ASR в фоне. Сейчас `transcribe` — один блокирующий вызов.
+- [ ] Загрузка и управление моделями в приложении вместо ручного `adb push`.
+- [ ] Опционально: асинхронные методы UniFFI, чтобы Kotlin мог напрямую использовать suspend-функции.
